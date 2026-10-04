@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مطعم عنبة</title>
+<style>
+:root{--main:#0f5132;--main2:#198754;--accent:#f4b942;--bg:#fdf8ee}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:#1f2937;min-height:100vh}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--main),var(--main2));color:#fff;text-align:center;padding:40px 16px 80px;border-radius:0 0 40px 40px}
+.float{position:absolute;font-size:30px;opacity:.22;animation:float 7s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-20px) rotate(14deg)}}
+.logo{width:90px;height:90px;border-radius:50%;background:#fff;object-fit:cover;border:4px solid var(--accent);margin-bottom:6px;animation:drop .8s}
+@keyframes drop{from{transform:translateY(-40px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+.hero h1{margin:4px 0 10px;font-size:30px;position:relative}
+.pill{display:inline-block;background:rgba(255,255,255,.2);padding:6px 16px;border-radius:20px;font-size:14px;position:relative;min-height:30px}
+.lang{position:absolute;top:12px;inset-inline-start:12px;background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:16px;padding:6px 12px;font-size:13px;z-index:2}
+.card{position:relative;max-width:440px;margin:-50px 14px 24px;background:#fff;border-radius:24px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.12);animation:up .6s}
+@media(min-width:480px){.card{margin-inline:auto}}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+h2{text-align:center;margin:0 0 4px;font-size:22px}
+.sub{text-align:center;color:#6b7280;margin:6px 0}
+.face{font-size:64px;text-align:center;margin:10px 0 0;animation:bounce .5s}
+@keyframes bounce{0%{transform:scale(.5)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.stars{display:flex;justify-content:center;gap:4px;direction:ltr;margin:10px 0 14px}
+.star{font-size:46px;color:#d9d9d9;background:none;border:none;padding:0 2px;transition:transform .15s}
+.star:active{transform:scale(1.3)}
+.star.on{color:var(--accent);animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.35) rotate(12deg)}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;justify-content:center}
+.chip{padding:9px 16px;border:1.5px solid #d1d5db;border-radius:22px;background:#fff;font-size:15px;transition:.2s}
+.chip.on{background:var(--main);color:#fff;border-color:var(--main);transform:scale(1.05)}
+textarea,input{width:100%;padding:13px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:16px;margin-top:10px;font-family:inherit;background:#fafafa}
+textarea:focus,input:focus{outline:none;border-color:var(--main2)}
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:14px;background:var(--main);color:#fff;font-size:17px;font-weight:600;margin-top:14px;text-align:center;text-decoration:none;transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.gold{background:var(--accent);color:#3b2a00;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(244,185,66,.6)}50%{box-shadow:0 0 0 12px rgba(244,185,66,0)}}
+.ghost{background:#f3f4f6;color:#374151}
+.big{font-size:72px;text-align:center;animation:bounce .6s}
+.conf{position:fixed;top:-30px;font-size:26px;animation:fall linear forwards;z-index:9;pointer-events:none}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="hero" id="hero">
+  <button class="lang" id="lang"></button>
+  <img class="logo" id="logo" src="logo.png" alt="" onerror="this.style.display='none'">
+  <h1 id="rname"></h1>
+  <div class="pill" id="bpill"></div>
+</div>
+<div class="card" id="app"></div>
+
+<script>
+// ===== إعدادات المطعم والفروع (عدّلها هنا) =====
+const RESTAURANT = {ar: "مطعم عنبة", en: "Anba Restaurant"};
+const BRANCHES = {
+  branch1: {ar: "الفرع الأول", en: "Branch 1", google: "https://www.google.com/maps"},
+  branch2: {ar: "الفرع الثاني", en: "Branch 2", google: "https://www.google.com/maps"}
+};
+// ===============================================
+
+const T = {
+  ar: {dir:"rtl", lang:"English", title:"كيف كانت تجربتك؟", sub:"رأيك يهمنا ويصنع الفرق",
+    pick:"اختر الفرع", sorry:"نعتذر منك 💔 ساعدنا نصلّح الموضوع:",
+    cats:{food:"🍽️ الأكل", service:"🙋 الخدمة", cleanliness:"✨ النظافة", speed:"⏱️ السرعة", other:"💬 أخرى"},
+    comment:"اكتب ملاحظتك (اختياري)", contact:"جوالك أو إيميلك لو تبغانا نتواصل معك (اختياري)",
+    send:"إرسال", thanks:"يسعدنا إنك استمتعت! 🎉 شاركنا رأيك في قوقل:", google:"قيّمنا في قوقل ⭐",
+    done:"شكراً لك! وصلتنا ملاحظتك"},
+  en: {dir:"ltr", lang:"العربية", title:"How was your experience?", sub:"Your opinion makes a difference",
+    pick:"Choose a branch", sorry:"We're sorry 💔 Help us fix it:",
+    cats:{food:"🍽️ Food", service:"🙋 Service", cleanliness:"✨ Cleanliness", speed:"⏱️ Speed", other:"💬 Other"},
+    comment:"Write your note (optional)", contact:"Phone or email if you'd like a follow-up (optional)",
+    send:"Send", thanks:"Glad you enjoyed it! 🎉 Share it on Google:", google:"Review us on Google ⭐",
+    done:"Thank you! We got your feedback"}
+};
+const FACES = ["🍽️","😡","😕","😐","😊","🤩"];
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+let branchId = params.get("b");
+if (!BRANCHES[branchId]) branchId = null;
+const state = {lang:"ar", rating:0, cat:"", comment:"", contact:"", done:false};
+
+// إيموجي عائمة في الخلفية
+["🍽️","🥘","🍗","🌶️","🍋","🥗","🍅"].forEach((e,i)=>{
+  const s = document.createElement("span");
+  s.className = "float"; s.textContent = e;
+  s.style.left = (i*15+3)+"%"; s.style.top = (10+(i%3)*28)+"%";
+  s.style.animationDelay = (i*0.8)+"s";
+  $("hero").appendChild(s);
+});
+
+function setRating(n){ state.rating = n; view(); }
+function setCat(c){ state.cat = c; view(); }
+function confetti(){
+  const items = ["🎉","⭐","✨","🎊"];
+  for(let i=0;i<28;i++){
+    const s = document.createElement("span");
+    s.className = "conf"; s.textContent = items[i%4];
+    s.style.left = Math.random()*100+"vw";
+    s.style.animationDuration = (2+Math.random()*2.5)+"s";
+    s.style.animationDelay = (Math.random()*0.8)+"s";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 5500);
+  }
+}
+function submit(openGoogle){
+  const data = {
+    branch: branchId, rating: state.rating, category: state.cat,
+    comment: state.comment, contact: state.contact,
+    created_at: new Date().toISOString()
+  };
+  console.log("Feedback:", data); // الخطوة الجاية: نربطه بقاعدة بيانات
+  setTimeout(()=>{ state.done = true; view(); }, openGoogle ? 400 : 0);
+}
+
+function view(){
+  const t = T[state.lang];
+  const b = BRANCHES[branchId];
+  document.documentElement.dir = t.dir;
+  document.documentElement.lang = state.lang;
+  $("lang").textContent = t.lang;
+  $("rname").textContent = RESTAURANT[state.lang];
+  $("bpill").textContent = b ? "📍 " + b[state.lang] : "";
+  let h = "";
+
+  if (!b) {
+    h += `<h2>${t.pick}</h2>`;
+    for (const id in BRANCHES) h += `<button class="btn" onclick="location.href='?b=${id}'">📍 ${BRANCHES[id][state.lang]}</button>`;
+  } else if (state.done) {
+    h += `<div class="big">${state.rating>=4?"🎉":"💚"}</div><h2>${t.done}</h2>`;
+  } else {
+    const low = state.rating>=1 && state.rating<=3, high = state.rating>=4;
+    h += `<h2>${t.title}</h2><p class="sub">${t.sub}</p>`;
+    h += `<div class="face">${FACES[state.rating]}</div><div class="stars">`;
+    for (let i=1;i<=5;i++) h += `<button class="star ${i<=state.rating?"on":""}" onclick="setRating(${i})">★</button>`;
+    h += `</div>`;
+    if (low) {
+      h += `<p class="sub">${t.sorry}</p><div class="chips">`;
+      for (const k in t.cats) h += `<button class="chip ${state.cat===k?"on":""}" onclick="setCat('${k}')">${t.cats[k]}</button>`;
+      h += `</div><textarea id="comment" rows="3" placeholder="${t.comment}"></textarea>`;
+      h += `<input id="contact" placeholder="${t.contact}">`;
+      h += `<button class="btn" onclick="submit()">${t.send}</button>`;
+    }
+    if (high) {
+      h += `<p class="sub">${t.thanks}</p><textarea id="comment" rows="2" placeholder="${t.comment}"></textarea>`;
+      h += `<a class="btn gold" href="${b.google}" target="_blank" rel="noopener" onclick="submit(true)">${t.google}</a>`;
+      h += `<button class="btn ghost" onclick="submit()">${t.send}</button>`;
+    }
+  }
+  $("app").innerHTML = h;
+
+  const c = $("comment"), k = $("contact");
+  if (c) { c.value = state.comment; c.oninput = () => state.comment = c.value; }
+  if (k) { k.value = state.contact; k.oninput = () => state.contact = k.value; }
+  if (state.done && state.rating>=4) confetti();
+}
+
+$("lang").onclick = () => { state.lang = state.lang==="ar" ? "en" : "ar"; view(); };
+view();
+</script>
+</body>
+</html>
