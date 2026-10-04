@@ -79,7 +79,7 @@ const FACES = ["🍽️","😡","😕","😐","😊","🤩"];
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let branchId = params.get("b");
-if (!BRANCHES[branchId]) branchId = null;
+if (!BRANCHES[branchId]) branchId = "branch1"
 const state = {lang:"ar", rating:0, cat:"", comment:"", contact:"", done:false};
 
 // إيموجي عائمة في الخلفية
