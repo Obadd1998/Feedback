@@ -43,12 +43,14 @@ textarea:focus,input:focus{outline:none;border-color:var(--main2)}
 @keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
 .logo{width:auto;height:120px;max-width:85%;border-radius:20px;padding:8px 20px;object-fit:contain;border:none}
 .logo:not([style*="display: none"]) + h1{display:none}
+.logo{height:150px;border-radius:0;padding:0;background:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25));animation:drop .8s,bob 3.5s ease-in-out .8s infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 </style>
 </head>
 <body>
 <div class="hero" id="hero">
   <button class="lang" id="lang"></button>
-  <img class="logo" id="logo" src="logo.png" alt="" onerror="this.style.display='none'">
+  <img class="logo" id="logo" src="logo-1.png" alt="" onerror="this.style.display='none'">
   <h1 id="rname"></h1>
   <div class="pill" id="bpill"></div>
 </div>
